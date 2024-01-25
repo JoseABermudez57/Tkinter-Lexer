@@ -10,6 +10,8 @@ class Lexer:
             'BOOLEAN_TYPE': 'Bool',
             'DECIMAL_TYPE': 'Dec',
             'STRING_TYPE': 'Cdn',
+            'TRUE_VALUE': 'True',
+            'FALSE_VALUE': 'False',
             'IF': 'if',
             'FOR': 'for',
             'PIPE': '|',
@@ -32,7 +34,7 @@ class Lexer:
         }
 
         self.reserved_words = dict(sorted(self.reserved_words.items(), key=lambda x: len(x[1]), reverse=True))
-        self.variable_regex = re.compile(r'^[a-zA-Z][a-zA-Z0-9]*$')
+        self.variable_regex = re.compile(r'^[a-zA-Z][a-zA-Z0-9_]*$')
 
     def next_token(self):
         self.skip_whitespace()
@@ -57,14 +59,14 @@ class Lexer:
 
         word = ''
 
-        while self.pos < len(self.input_text) and char.isalnum():
+        while self.pos < len(self.input_text) and (char.isalnum() or char == '_'):
             word += char
             self.pos += 1
             char = self.input_text[self.pos] if self.pos < len(self.input_text) else ''
 
         if word:
             if self.is_valid_variable(word):
-                return f'TOKEN: STRING - LEXEMA: {word}\n'
+                return f'TOKEN: VARIABLE - LEXEMA: {word}\n'
             else:
                 return f'TOKEN: INVALID_VARIABLE - LEXEMA: {word}\n'
 
@@ -76,5 +78,5 @@ class Lexer:
         self.pos += len(self.input_text[self.pos:]) - len(self.input_text[self.pos:].lstrip())
 
     def is_valid_variable(self, variable):
-        variable_regex = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
-        return bool(variable_regex.match(variable))
+        return bool(self.variable_regex.match(variable))
+
